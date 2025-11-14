@@ -1,6 +1,6 @@
-ip link set eth0 address 00:01:02:03:04:05
-ip addr add 10.0.1.100/24 dev eth0
+ip link set eth0 address 00:01:02:03:04:11
+ip addr add 10.0.0.1/24 dev eth0 
 
-arp -s 10.0.1.1 00:01:02:04:04:55
-
-ip route add default via 10.0.1.1 dev eth0
+arp -s 10.0.0.2 00:01:02:03:04:22
+arp -s 10.0.0.3 00:01:02:03:06:22
+arp -s 10.0.0.4 00:01:02:03:06:11
