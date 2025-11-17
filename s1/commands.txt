@@ -1,4 +1,10 @@
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.1 10.0.10.2 0x00 => 1 80
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.3 10.0.10.4 0x00 => 2 80
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.1 10.0.10.4 0x00 => 3 80
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.3 10.0.10.2 0x00 => 4 80
+table_add MyIngress.ipv4_tunnel_match ipv4_tunnel_match 10.0.0.1 10.0.0.2 8 => 1
+table_add MyIngress.ipv4_tunnel_match ipv4_tunnel_match 10.0.0.3 10.0.0.4 8 => 2
+table_add MyIngress.ipv4_tunnel_match ipv4_tunnel_match 10.0.0.1 10.0.0.4 8 => 3
+table_add MyIngress.ipv4_tunnel_match ipv4_tunnel_match 10.0.0.3 10.0.0.2 8 => 4
+
+per ogni switch mi devo creare un'astrazione di porta da s_i a s_j
+table_add MyIngress.intermediate_tables tunnel_forward 1 => 2
+table_add MyIngress.intermediate_tables tunnel_forward 2 => 3
+table_add MyIngress.intermediate_tables tunnel_forward 3 => 2
+table_add MyIngress.intermediate_tables tunnel_forward 4 => 3

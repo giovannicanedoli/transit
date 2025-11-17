@@ -6,6 +6,7 @@
 
 const bit<16> TYPE_MYTUNNEL = 0x1212;
 const bit<16> TYPE_IPV4 = 0x800;
+ 
 const bit<5> VALIDATION_HEADER_VALID = 7;
 const bit<32> PATH_SUM_THRESHOLD = 50; // Example threshold value
 
@@ -36,40 +37,40 @@ header ipv4_t {
     bit<32> dstAddr;
 }
 
-header ipv4_option_t {
-    bit<1> copyFlag;
-    bit<2> optClass;
-    bit<5> option;
-    bit<8> optionLength;
-}
+// header ipv4_option_t {
+//     bit<1> copyFlag;
+//     bit<2> optClass;
+//     bit<5> option;
+//     bit<8> optionLength;
+// }
 
-header mri_t {
-    bit<16>  count;
-}
+// header mri_t {
+//     bit<16>  count;
+// }
 
-header switch_t {
-    switchID_t  swid;
-    qdepth_t    qdepth;
-}
+// header switch_t {
+//     switchID_t  swid;
+//     qdepth_t    qdepth;
+// }
 
 // tunnel header to handle tunneling
 header myTunnel_t {  
     bit<16> tunnel_id; //match specific tunnel id   (assume int > 0)
 }
 
-header validation_t {
-    bit<5> isValid;
-    mri_t mri;
-    switch_t[MAX_HOPS] swtraces;
-    bit<32> cumulative_tunnel_sum;  // <-- NEW
-}
+// header validation_t {
+//     bit<5> isValid;
+//     mri_t mri;
+//     switch_t[MAX_HOPS] swtraces;
+//     bit<32> cumulative_tunnel_sum;  // <-- NEW
+// }
 
 // NOTE: Added new header type to headers struct
 struct headers {
     ethernet_t ethernet;
     ipv4_t ipv4;
-    ipv4_option_t      ipv4_option;
-    // myTunnel_t myTunnel;
+    // ipv4_option_t      ipv4_option;
+    myTunnel_t myTunnel;
     // validation_t validation;
 }
 
@@ -89,8 +90,9 @@ struct parser_metadata_t {
 
 struct metadata {
     //used to implement MRI
-    ingress_metadata_t   ingress_metadata;
-    parser_metadata_t   parser_metadata;
+    // ingress_metadata_t   ingress_metadata;
+    // parser_metadata_t   parser_metadata;
+    bool add_tunnel;
 }
 
 //END METADATA
@@ -101,7 +103,6 @@ struct metadata {
 
 //PARSER
 
-// TODO: Update the parser to parse the myTunnel header as well
 parser MyParser(packet_in packet,
                 out headers hdr,
                 inout metadata meta,
@@ -121,59 +122,17 @@ parser MyParser(packet_in packet,
 
     state parse_ipv4 {
         packet.extract(hdr.ipv4);
-        verify(hdr.ipv4.ihl >= 5, error.IPHeaderTooShort);
-        transition select(hdr.ipv4.ihl) {
-            5             : accept;
-            default       : parse_ipv4_option;
+        transition select(meta.add_tunnel) {
+            true : parse_tunnel;
+            default : accept;
         }
-    }
-
-    state parse_ipv4_option {
-        //used to parse ipv4 options (used for the path validation)
-        packet.extract(hdr.ipv4_option);
-        transition select(hdr.ipv4_option.option){
-            IPV4_OPTION_MRI: parse_mri;
-            default: accept;
-        }
-
     }
 
     state parse_tunnel {
         packet.extract(hdr.myTunnel);
-        //go to the transition parse_mri only if there is the validation header
-        transition select(hdr.myTunnel.isValid()){
-            1: parse_mri;
-            default: accept;
-        }
+        transition accept;  //accept transition for now
+
     }
-
-    state parse_mri {
-        packet.extract(hdr.mri);
-        meta.parser_metadata.remaining = hdr.mri.count;
-        transition select(meta.parser_metadata.remaining) {
-            0 : accept;
-            default: parse_swtrace; 
-        }
-    }
-
-    state parse_swtrace {
-        /*
-        * TODO: Add logic to:
-        * - Extract hdr.swtraces.next.
-        * - Decrement meta.parser_metadata.remaining by 1
-        * - Select on the value of meta.parser_metadata.remaining
-        *   - If the value is equal to 0, accept.
-        *   - Otherwise, transition to parse_swtrace.
-        */
-        packet.extract(hdr.swtraces.next);
-        meta.parser_metadata.remaining = meta.parser_metadata.remaining  - 1;
-        transition select(meta.parser_metadata.remaining) {
-            0 : accept;
-            default: parse_swtrace;
-        }
-    }
-
-
 }
 
 //CHECKSUM VERIFICATION
@@ -186,21 +145,19 @@ control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
+    
+
     action drop() {
         mark_to_drop(standard_metadata);
     }
 
-    action ipv4_tunnel_match(bit<16> tunnel_id, bit<9>  output_port) {
-        //I wanna obtain the value associated to that tuple
+    action ipv4_tunnel_match(bit<16> tunnel_id) {
+        meta.add_tunnel = true;
         hdr.myTunnel.setValid();
-        hdr.myTunnel.dst_id = tunnel_id;
-        //add a validation header
-        // hdr.validation.setValid();
-        // hdr.validation.isValid = VALIDATION_HEADER_VALID;
-        //forward packet to output_port
-        standard_metadata.egress_spec = output_port;
+        hdr.myTunnel.tunnel_id = tunnel_id;
     }
 
+    
     table ipv4_tunnel_forward {
         key = {
             hdr.ipv4.srcAddr: exact;
@@ -210,40 +167,33 @@ control MyIngress(inout headers hdr,
         actions = {
             ipv4_tunnel_match;
             drop;
-            NoAction;
         }
         size = 1024;
         default_action = drop();
     }
-    //forward packet to output_port given a tunnel_id both as input and output
-    action forward_based_on_tunnelid(bit<16> tunnel_id, bit<9> output_port) {
-        //validation header initialization
-        hdr.validation.setValid();
-        hdr.validation.isValid = VALIDATION_HEADER_VALID;
-        hdr.validation.mri.count = 0; //initialize the mri count to 0
-        hdr.validation.cumulative_tunnel_sum = hdr.myTunnel.tunnel_id; // initialize cumulative sum
-        standard_metadata.egress_spec = output_port;
+
+    action tunnel_forward(bit<9> egress_port){
+        standard_metadata.egress_spec = egress_port;
     }
 
-    table transit_switch_table {
+
+    table intermediate_tables {
         key = {
             hdr.myTunnel.tunnel_id: exact;
         }
         actions = {
-            forward_based_on_tunnelid;
+            tunnel_forward;
             drop;
-            NoAction;
         }
-        size = 1024;
-        default_action = drop();
     }
 
+    
     apply {
-        //execute only if there is no validation header
-        if(!hdr.myTunnel.isValid()){
+        if(!meta.add_tunnel){
             ipv4_tunnel_forward.apply();
+            intermediate_tables.apply();
         }else{
-            transit_switch_table.apply();
+            intermediate_tables.apply();
         }
     }
 }
@@ -253,73 +203,19 @@ control MyIngress(inout headers hdr,
 control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
-                    
-    action add_swtrace(switchID_t swid) {
-        hdr.validation.mri.count = hdr.validation.mri.count + 1;
-        hdr.validation.swtraces[0].setValid();
-        hdr.validation.swtraces[0].swid = swid;
-        hdr.validation.swtraces[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
-
-        // Update cumulative_tunnel_sum
-        hdr.validation.cumulative_tunnel_sum = hdr.validation.cumulative_tunnel_sum + hdr.myTunnel.tunnel_id;
-
-        hdr.ipv4.ihl = hdr.ipv4.ihl + 2;
-        hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 8;
-        hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
-    }
-
-    table swtrace {
-        actions        = {
-            add_swtrace;
-            NoAction;
-        }
-
-        default_action =  NoAction();
-    }
-
-    action validate_path_sum() {
-    if (hdr.validation.cumulative_tunnel_sum > PATH_SUM_THRESHOLD) {
-        mark_to_drop(standard_metadata);
-        }
-    }
-
-    table path_sum_validation {
-        actions        = {
-            validate_path_sum;
-            NoAction;
-        }
-
-        default_action =  NoAction();
-    }
-
-
-    apply { 
-        if(hdr.validation.isValid()){
-            swtrace.apply();
-            path_sum_validation.apply();    
-        }
+    
+    //TODO
+    //fare una tabella che dato un tunnel_id fa fowarding verso un determinato switch in output
+    //inizializzare un validation header 
+    
+    apply {
+        
     }
 }
 
 //CHECKSUM COMPUTATION
 control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
-     apply {
-        update_checksum(
-            hdr.ipv4.isValid(),
-            { hdr.ipv4.version,
-              hdr.ipv4.ihl,
-              hdr.ipv4.diffserv,
-              hdr.ipv4.totalLen,
-              hdr.ipv4.identification,
-              hdr.ipv4.flags,
-              hdr.ipv4.fragOffset,
-              hdr.ipv4.ttl,
-              hdr.ipv4.protocol,
-              hdr.ipv4.srcAddr,
-              hdr.ipv4.dstAddr },
-            hdr.ipv4.hdrChecksum,
-            HashAlgorithm.csum16);
-    }
+     apply {}
 }
 
 //DEPARSER
@@ -327,14 +223,7 @@ control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
-        packet.emit(hdr.ipv4_option);
-        // TODO: emit myTunnel header as well
-        if (hdr.myTunnel.isValid()) {
-            packet.emit(hdr.myTunnel);
-        }
-        if(hdr.validation.isValid()){
-            packet.emit(hdr.validation);   
-        }
+        packet.emit(hdr.myTunnel);
     }
 }
 
