@@ -195,6 +195,7 @@ control MyIngress(inout headers hdr,
         log_msg("log");
         if(!meta.add_tunnel){
             ipv4_tunnel_forward.apply();
+            intermediate_tables.apply();
         }else{
             //intermediate tunnel
             intermediate_tables.apply();
