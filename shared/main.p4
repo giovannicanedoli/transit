@@ -170,29 +170,33 @@ control MyIngress(inout headers hdr,
         }
         size = 1024;
         default_action = drop();
+    
     }
 
-    action tunnel_forward(bit<9> egress_port){
-        standard_metadata.egress_spec = egress_port;
+    action tunnel_forward(bit<9> port) {
+        standard_metadata.egress_spec = port;
     }
-
 
     table intermediate_tables {
         key = {
             hdr.myTunnel.tunnel_id: exact;
         }
         actions = {
+            // add actions as needed
             tunnel_forward;
             drop;
         }
+        size = 1024;
+        default_action = drop();
     }
 
     
     apply {
+        log_msg("log");
         if(!meta.add_tunnel){
             ipv4_tunnel_forward.apply();
-            intermediate_tables.apply();
         }else{
+            //intermediate tunnel
             intermediate_tables.apply();
         }
     }
@@ -206,7 +210,9 @@ control MyEgress(inout headers hdr,
     
     //TODO
     //fare una tabella che dato un tunnel_id fa fowarding verso un determinato switch in output
-    //inizializzare un validation header 
+    //inizializzare un validation header
+
+    
     
     apply {
         
