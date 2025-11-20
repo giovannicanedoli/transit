@@ -35,19 +35,18 @@ def build_normal_ipv4_packet(src, dst, dscp=0, payload="HELLO"):
 
 if __name__ == "__main__":
     # Example packet expected to be encapsulated by the P4 program
-    if len(sys.argv)<3:
-        print('pass 2 arguments: <destination_ip> [<message>] [<count>]')
-        exit(1)
-
-    src_ip = "10.0.0.3"
-    dst_ip = sys.argv[1]
-    payload = sys.argv[2] if len(sys.argv) > 2 else "TriggerTunnel"
-    count = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+    
+    src_ip = "10.0.0.1"
+    dst_ip = "10.0.0.2"
+    #count = int(sys.argv[2]) if len(sys.argv) > 3 else 1
+    #payload = sys.argv[3] if len(sys.argv) > 2 else "TriggerTunnel"
+    count = 10
+    payload = "HELLO"
 
     pkt = build_normal_ipv4_packet(
         src=src_ip,
         dst=dst_ip,
-        dscp=8,
+        dscp=0,
         payload=payload
     )
 

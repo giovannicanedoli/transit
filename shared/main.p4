@@ -4,7 +4,7 @@
 
 #define MAX_HOPS 6
 
-const bit<16> TYPE_MYTUNNEL = 0x1212;
+const bit<8> PROTO_MYTUNNEL = 0x88;
 const bit<16> TYPE_IPV4 = 0x800;
  
 const bit<5> VALIDATION_HEADER_VALID = 7;
@@ -55,6 +55,7 @@ header ipv4_t {
 
 // tunnel header to handle tunneling
 header myTunnel_t {  
+    bit<16> proto_id;
     bit<16> tunnel_id; //match specific tunnel id   (assume int > 0)
 }
 
@@ -89,10 +90,6 @@ struct parser_metadata_t {
 }
 
 struct metadata {
-    //used to implement MRI
-    // ingress_metadata_t   ingress_metadata;
-    // parser_metadata_t   parser_metadata;
-    bool add_tunnel;
 }
 
 //END METADATA
@@ -122,16 +119,15 @@ parser MyParser(packet_in packet,
 
     state parse_ipv4 {
         packet.extract(hdr.ipv4);
-        transition select(meta.add_tunnel) {
-            true : parse_tunnel;
-            default : accept;
+        transition select(hdr.ipv4.protocol) {
+            PROTO_MYTUNNEL: parse_myTunnel;
+            default: accept;
         }
     }
 
-    state parse_tunnel {
+    state parse_myTunnel {
         packet.extract(hdr.myTunnel);
-        transition accept;  //accept transition for now
-
+        transition accept;
     }
 }
 
@@ -141,22 +137,29 @@ control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
 }
 
 
-//INGRESS PROCESSING
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
     
-
     action drop() {
         mark_to_drop(standard_metadata);
     }
 
-    action ipv4_tunnel_match(bit<16> tunnel_id) {
-        meta.add_tunnel = true;
+    action tunnel_ingress(bit<16> tunnel_id, bit<9> port, bit<48> dstAddr) {
         hdr.myTunnel.setValid();
-        hdr.myTunnel.tunnel_id = tunnel_id;
-    }
+        hdr.myTunnel.tunnel_id = tunnel_id; 
 
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
+        hdr.ethernet.dstAddr = dstAddr;
+        
+        hdr.myTunnel.proto_id = (bit<16>)hdr.ipv4.protocol;
+
+        hdr.ipv4.protocol = PROTO_MYTUNNEL; // defined as 0x88 previously
+        hdr.ipv4.totalLen = hdr.ipv4.totalLen + 4; // 4 bytes is correct (2 for proto + 2 for id)
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+
+        standard_metadata.egress_spec = port;
+    }
     
     table ipv4_tunnel_forward {
         key = {
@@ -165,15 +168,27 @@ control MyIngress(inout headers hdr,
             hdr.ipv4.diffserv: exact;
         }
         actions = {
-            ipv4_tunnel_match;
+            tunnel_ingress;
             drop;
         }
         size = 1024;
         default_action = drop();
-    
     }
 
-    action tunnel_forward(bit<9> port) {
+    action tunnel_forward(bit<9> port){
+        standard_metadata.egress_spec = port;
+    }
+
+    action tunnel_decapsulate(bit<9> port){
+        // Restore Protocol
+        hdr.ipv4.protocol = (bit<8>)hdr.myTunnel.proto_id;
+        
+        // Fix Length
+        hdr.ipv4.totalLen = hdr.ipv4.totalLen - 4;
+        
+        // Remove Header
+        hdr.myTunnel.setInvalid();
+        
         standard_metadata.egress_spec = port;
     }
 
@@ -182,26 +197,27 @@ control MyIngress(inout headers hdr,
             hdr.myTunnel.tunnel_id: exact;
         }
         actions = {
-            // add actions as needed
             tunnel_forward;
+            tunnel_decapsulate;
             drop;
         }
         size = 1024;
         default_action = drop();
     }
 
-    
     apply {
-        log_msg("log");
-        if(!meta.add_tunnel){
-            ipv4_tunnel_forward.apply();
-            intermediate_tables.apply();
-        }else{
-            //intermediate tunnel
+        // Process standard IPv4 packets (entering the tunnel)
+        if(!hdr.myTunnel.isValid() && hdr.ipv4.isValid()){
+            ipv4_tunnel_forward.apply(); 
+        }
+
+        // Process Tunneled packets (transit or exiting)
+        if(hdr.myTunnel.isValid()){
             intermediate_tables.apply();
         }
     }
 }
+
 
 //EGRESS PROCESSING
 
@@ -209,10 +225,6 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     
-    //TODO
-    //fare una tabella che dato un tunnel_id fa fowarding verso un determinato switch in output
-    //inizializzare un validation header
-
     
     
     apply {
@@ -222,7 +234,23 @@ control MyEgress(inout headers hdr,
 
 //CHECKSUM COMPUTATION
 control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
-     apply {}
+     apply{
+        update_checksum(
+            hdr.ipv4.isValid(),
+            { hdr.ipv4.version,
+              hdr.ipv4.ihl,
+              hdr.ipv4.diffserv,
+              hdr.ipv4.totalLen,
+              hdr.ipv4.identification,
+              hdr.ipv4.flags,
+              hdr.ipv4.fragOffset,
+              hdr.ipv4.ttl,
+              hdr.ipv4.protocol, // This will now reflect PROTO_MYTUNNEL if tunneled
+              hdr.ipv4.srcAddr,
+              hdr.ipv4.dstAddr },
+            hdr.ipv4.hdrChecksum,
+            HashAlgorithm.csum16);
+     }
 }
 
 //DEPARSER
