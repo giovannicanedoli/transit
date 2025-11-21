@@ -192,8 +192,8 @@ control MyIngress(inout headers hdr,
 
     
     apply {
-        log_msg("log");
-        if(!meta.add_tunnel){
+        
+        if(!hdr.myTunnel.isValid()){
             ipv4_tunnel_forward.apply();
             intermediate_tables.apply();
         }else{
