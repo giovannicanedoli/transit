@@ -16,6 +16,7 @@ typedef bit<9>  egressSpec_t;
 typedef bit<32> switchID_t;
 typedef bit<32> qdepth_t;
 
+
 header ethernet_t {
     bit<48> dstAddr;
     bit<48> srcAddr;
@@ -35,6 +36,13 @@ header ipv4_t {
     bit<16> hdrChecksum;
     bit<32> srcAddr;
     bit<32> dstAddr;
+}
+
+header ipv4_option_t {
+    bit<1> copyFlag;
+    bit<2> optClass;
+    bit<5> option;
+    bit<8> optionLength;
 }
 
 // header ipv4_option_t {
@@ -59,12 +67,9 @@ header myTunnel_t {
     bit<16> tunnel_id; //match specific tunnel id   (assume int > 0)
 }
 
-// header validation_t {
-//     bit<5> isValid;
-//     mri_t mri;
-//     switch_t[MAX_HOPS] swtraces;
-//     bit<32> cumulative_tunnel_sum;  // <-- NEW
-// }
+header validation_t {
+    switchID_t swid;
+}
 
 // NOTE: Added new header type to headers struct
 struct headers {
@@ -72,7 +77,7 @@ struct headers {
     ipv4_t ipv4;
     // ipv4_option_t      ipv4_option;
     myTunnel_t myTunnel;
-    // validation_t validation;
+    validation_t validation;
 }
 
 
@@ -125,10 +130,6 @@ parser MyParser(packet_in packet,
         }
     }
 
-    state parse_myTunnel {
-        packet.extract(hdr.myTunnel);
-        transition accept;
-    }
 }
 
 //CHECKSUM VERIFICATION
@@ -176,6 +177,7 @@ control MyIngress(inout headers hdr,
     }
 
     action tunnel_forward(bit<9> port){
+        log_msg("forwording_msg");
         standard_metadata.egress_spec = port;
     }
 
@@ -209,11 +211,13 @@ control MyIngress(inout headers hdr,
         // Process standard IPv4 packets (entering the tunnel)
         if(!hdr.myTunnel.isValid() && hdr.ipv4.isValid()){
             ipv4_tunnel_forward.apply(); 
+            log_msg("HERE1");
         }
 
         // Process Tunneled packets (transit or exiting)
         if(hdr.myTunnel.isValid()){
             intermediate_tables.apply();
+            log_msg("APPLIEDddddddddddddddddddddd");
         }
     }
 }

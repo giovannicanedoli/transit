@@ -40,7 +40,7 @@ if __name__ == "__main__":
     dst_ip = "10.0.0.2"
     #count = int(sys.argv[2]) if len(sys.argv) > 3 else 1
     #payload = sys.argv[3] if len(sys.argv) > 2 else "TriggerTunnel"
-    count = 10
+    count = 100
     payload = "HELLO"
 
     pkt = build_normal_ipv4_packet(
