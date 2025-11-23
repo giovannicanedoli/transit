@@ -1,2 +1,3 @@
-table_add MyIngress.intermediate_tables tunnel_forward 10 => 3
 table_add MyIngress.intermediate_tables tunnel_decapsulate 10 => 3
+table_set_default MyEgress.set_mri add_mri 4
+table_set_default MyEgress.load_threshold set_threshold 1000
