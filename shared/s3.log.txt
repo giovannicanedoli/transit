@@ -347,4 +347,442 @@ Action entry: MyIngress.tunnel_forward - 3,
 [20:48:07.071] [bmv2] [D] [thread 47] [1.0] [cxt 0] Parser 'parser': start
 [20:48:07.071] [bmv2] [D] [thread 47] [1.0] [cxt 0] Parser 'parser' entering state 'start'
 [20:48:07.071] [bmv2] [D] [thread 47] [1.0] [cxt 0] Extracting header 'ethernet'
-[20:48:07.071] [bmv2] [D] [thre
+[20:48:07.071] [bmv2] [D] [thre[11:29:06.113] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[11:29:06.113] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main348': main348 - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_setup_mri': MyEgress.setup_mri - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.set_mri': NoAction - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main354': main354 - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.load_threshold': NoAction - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main357': main357 - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main359': main359 - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_pop_validation_stack': MyEgress.pop_validation_stack - 
+[11:29:06.114] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main362': main362 - 
+[11:29:06.116] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[11:29:06.124] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[11:29:06.139] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[11:29:06.145] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[11:29:06.168] [bmv2] [E] [thread 39] Add port operation failed
+[11:29:06.168] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[11:29:06.170] [bmv2] [I] [thread 39] Thrift server was started
+[11:29:06.281] [bmv2] [T] [thread 54] bm_get_config
+[11:29:06.445] [bmv2] [T] [thread 57] bm_get_config
+[11:29:06.452] [bmv2] [T] [thread 57] bm_table_add_entry
+[11:29:06.452] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[11:29:06.452] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[11:29:06.453] [bmv2] [T] [thread 57] bm_set_default_action
+[11:29:06.453] [bmv2] [D] [thread 57] Set default entry for table 'MyEgress.set_mri': MyEgress.add_mri - 3,
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[11:29:27.162] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 0d
+[11:29:27.162] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 00
+[11:29:27.162] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[11:29:27.162] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(244) Condition "!hdr.myTunnel.isValid() && hdr.ipv4.isValid()" (node_2) is true
+[11:29:27.162] [bmv2] [T] [thread 47] [0.0] [cxt 0] Applying table 'MyIngress.ipv4_tunnel_forward'
+[11:29:27.162] [bmv2] [D] [thread 47] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.srcAddr    : 0a000001
+* hdr.ipv4.dstAddr    : 0a0[13:32:48.660] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[13:32:48.660] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main327': main327 - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_setup_mri': MyEgress.setup_mri - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.set_mri': NoAction - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main333': main333 - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.load_threshold': NoAction - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main336': main336 - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main338': main338 - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_pop_validation_stack': MyEgress.pop_validation_stack - 
+[13:32:48.661] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main341': main341 - 
+[13:32:48.661] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[13:32:48.671] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[13:32:48.686] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[13:32:48.694] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[13:32:48.706] [bmv2] [E] [thread 39] Add port operation failed
+[13:32:48.706] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[13:32:48.706] [bmv2] [I] [thread 39] Thrift server was started
+[13:32:48.730] [bmv2] [T] [thread 54] bm_get_config
+[13:32:48.802] [bmv2] [T] [thread 57] bm_get_config
+[13:32:48.805] [bmv2] [T] [thread 57] bm_table_add_entry
+[13:32:48.805] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[13:32:48.805] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:32:48.805] [bmv2] [T] [thread 57] bm_set_default_action
+[13:32:48.805] [bmv2] [D] [thread 57] Set default entry for table 'MyEgress.set_mri': MyEgress.add_mri - 3,
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[13:33:05.246] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 0d
+[13:33:05.246] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 88
+[13:33:05.246] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_myTunnel'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'myTunnel'
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_myTunnel': key is 00
+[13:33:05.246] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 40
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[13:33:05.246] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[13:33:05.246] [bmv2] [T] [threa[13:35:31.005] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[13:35:31.005] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[13:35:31.006] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[13:35:31.019] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[13:35:31.027] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[13:35:31.039] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[13:35:31.051] [bmv2] [E] [thread 39] Add port operation failed
+[13:35:31.051] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[13:35:31.051] [bmv2] [I] [thread 39] Thrift server was started
+[13:35:31.082] [bmv2] [T] [thread 54] bm_get_config
+[13:35:31.136] [bmv2] [T] [thread 57] bm_get_config
+[13:35:31.137] [bmv2] [T] [thread 57] bm_table_add_entry
+[13:35:31.137] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[13:35:31.137] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 06
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 88
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_myTunnel'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'myTunnel'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_myTunnel': key is 1f
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 40
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_mri'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'mri'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from field 'mri.count' (0)
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_mri': key is 0000
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 42
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(223) Condition "!hdr.myTunnel.isValid() && hdr.ipv4.isValid()" (node_2) is false
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(228) Condition "hdr.myTunnel.isValid()" (node_4) is true
+[13:35:46.814] [bmv2] [T] [thread 47] [0.0] [cxt 0] Applying table 'MyIngress.intermediate_tables'
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Looking up key:
+* hdr.myTunnel.tunnel_id: 000a
+
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Table 'MyIngress.intermediate_tables': hit with handle 0
+[13:35:46.814] [bmv2] [D] [thread 47] [0.0] [cxt 0] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+A[13:36:24.647] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[13:36:24.647] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[13:36:24.647] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main327': main327 - 
+[13:36:24.647] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_setup_mri': MyEgress.setup_mri - 
+[13:36:24.647] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.set_mri': NoAction - 
+[13:36:24.647] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[13:36:24.663] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[13:36:24.672] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[13:36:24.688] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[13:36:24.707] [bmv2] [E] [thread 39] Add port operation failed
+[13:36:24.707] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[13:36:24.707] [bmv2] [I] [thread 39] Thrift server was started
+[13:36:24.712] [bmv2] [T] [thread 54] bm_get_config
+[13:36:24.777] [bmv2] [T] [thread 57] bm_get_config
+[13:36:24.779] [bmv2] [T] [thread 57] bm_table_add_entry
+[13:36:24.779] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[13:36:24.779] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:36:24.780] [bmv2] [T] [thread 57] bm_set_default_action
+[13:36:24.780] [bmv2] [D] [thread 57] Set default entry for table 'MyEgress.set_mri': MyEgress.add_mri - 3,
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 0c
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 88
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_myTunnel'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'myTunnel'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_myTunnel': key is 1f
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 40
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_mri'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'mri'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from field 'mri.count' (7)
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_mri': key is 0007
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 42
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 7
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 6
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0006
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 46
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 8
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 5
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0005
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 50
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 9
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 4
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0004
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 54
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 10
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 3
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0003
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 58
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 11
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 2
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0002
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 62
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 12
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 1
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0001
+[13:36:42.056] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 66
+[13:36:42.056] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:36:42.059] [bmv2] [E] [thread 47] [0.0] [cxt 0] Exception while parsing: StackOutOfBounds
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[13:36:42.059] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(223) Condition "!hdr.myTunnel.isValid() && hdr.ipv4.isValid()" (node_2) is false
+[13:36:42.059] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(228) Condition "hdr.myTunnel.isValid()" (node_4) is true
+[13:36:42.059] [bmv2] [T] [thread 47] [0.0] [cxt 0] Applying table 'MyIngress.intermediate_tables'
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Looking up key:
+* hdr.myTunnel.tunnel_id: 000a
+
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Table 'MyIngress.intermediate_tables': hit with handle 0
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:36:42.059] [bmv2] [D] [thread 47] [0.0] [cxt 0] Action entry is MyIngress.tunnel_forward - 3,
+[13:36:42.059] [bmv2] [T] [thread 47] [0.0] [cxt 0] Action MyIngress.tunnel_forward
+[13:36:42.059] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(198) Primitive         log_msg(\"forwording_msg\");
+[13:36:42.059] [bmv2] [I] [t[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main328': main328 - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_setup_mri': MyEgress.setup_mri - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.set_mri': NoAction - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main334': main334 - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.load_threshold': NoAction - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main338': main338 - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main340': main340 - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_pop_validation_stack': MyEgress.pop_validation_stack - 
+[13:38:02.013] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main343': main343 - 
+[13:38:02.014] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[13:38:02.027] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[13:38:02.035] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[13:38:02.044] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[13:38:02.057] [bmv2] [E] [thread 39] Add port operation failed
+[13:38:02.057] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[13:38:02.057] [bmv2] [I] [thread 39] Thrift server was started
+[13:38:02.075] [bmv2] [T] [thread 54] bm_get_config
+[13:38:02.157] [bmv2] [T] [thread 57] bm_get_config
+[13:38:02.161] [bmv2] [T] [thread 57] bm_table_add_entry
+[13:38:02.161] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[13:38:02.161] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:38:02.161] [bmv2] [T] [thread 57] bm_set_default_action
+[13:38:02.161] [bmv2] [D] [thread 57] Set default entry for table 'MyEgress.set_mri': MyEgress.add_mri - 3,
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[13:38:24.895] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 0d
+[13:38:24.895] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 88
+[13:38:24.895] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_myTunnel'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'myTunnel'
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_myTunnel': key is 00
+[13:38:24.895] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 40
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[13:38:24.895] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[13:38:24.895] [bmv2] [T] [threa[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.ipv4_tunnel_forward': MyIngress.drop - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'MyIngress.intermediate_tables': MyIngress.drop - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main328': main328 - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_setup_mri': MyEgress.setup_mri - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.set_mri': NoAction - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main334': main334 - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'MyEgress.load_threshold': NoAction - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main338': main338 - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main340': main340 - 
+[13:40:39.239] [bmv2] [D] [thread 39] Set default default entry for table 'tbl_main343': main343 - 
+[13:40:39.240] [bmv2] [D] [thread 39] Adding interface eth0 as port 1
+[13:40:39.249] [bmv2] [D] [thread 39] Adding interface eth1 as port 2
+[13:40:39.255] [bmv2] [D] [thread 39] Adding interface eth2 as port 3
+[13:40:39.268] [bmv2] [D] [thread 39] Adding interface eth3 as port 4
+[13:40:39.281] [bmv2] [E] [thread 39] Add port operation failed
+[13:40:39.281] [bmv2] [I] [thread 39] Starting Thrift server on port 9090
+[13:40:39.281] [bmv2] [I] [thread 39] Thrift server was started
+[13:40:39.333] [bmv2] [T] [thread 54] bm_get_config
+[13:40:39.414] [bmv2] [T] [thread 57] bm_get_config
+[13:40:39.417] [bmv2] [T] [thread 57] bm_table_add_entry
+[13:40:39.417] [bmv2] [D] [thread 57] Entry 0 added to table 'MyIngress.intermediate_tables'
+[13:40:39.417] [bmv2] [D] [thread 57] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:40:39.417] [bmv2] [T] [thread 57] bm_set_default_action
+[13:40:39.417] [bmv2] [D] [thread 57] Set default entry for table 'MyEgress.set_mri': MyEgress.add_mri - 3,
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Processing packet received on port 2
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': start
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ethernet'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'start': key is 0800
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 14
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4': key is 0c
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 34
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4_option'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'ipv4_option'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_ipv4_option': key is 88
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 36
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_myTunnel'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'myTunnel'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_myTunnel': key is 1f
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 40
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_mri'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting header 'mri'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from field 'mri.count' (7)
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.decapsulate' to 0
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_mri': key is 0007
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 42
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 7
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 6
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0006
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 46
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 8
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 5
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0005
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 50
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 9
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 4
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0004
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 54
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 10
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 3
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0003
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 58
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 11
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 2
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0002
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 62
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Extracting to header stack 0, next header is 12
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser set: setting field 'scalars.metadata.remaining' from expression, new value is 1
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser state 'parse_validation': key is 0001
+[13:40:59.306] [bmv2] [T] [thread 47] [0.0] [cxt 0] Bytes parsed: 66
+[13:40:59.306] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser' entering state 'parse_validation'
+[13:40:59.308] [bmv2] [E] [thread 47] [0.0] [cxt 0] Exception while parsing: StackOutOfBounds
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Parser 'parser': end
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': start
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(224) Condition "!hdr.myTunnel.isValid() && hdr.ipv4.isValid()" (node_2) is false
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(229) Condition "hdr.myTunnel.isValid()" (node_4) is true
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] Applying table 'MyIngress.intermediate_tables'
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Looking up key:
+* hdr.myTunnel.tunnel_id: 000a
+
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Table 'MyIngress.intermediate_tables': hit with handle 0
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Dumping entry 0
+Match key:
+* hdr.myTunnel.tunnel_id: EXACT     000a
+Action entry: MyIngress.tunnel_forward - 3,
+
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Action entry is MyIngress.tunnel_forward - 3,
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] Action MyIngress.tunnel_forward
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(199) Primitive         log_msg(\"forwording_msg\");
+[13:40:59.308] [bmv2] [I] [thread 47] forwording_msg
+[13:40:59.308] [bmv2] [T] [thread 47] [0.0] [cxt 0] /shared/main.p4(200) Primitive standard_metadata.egress_spec = port
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Pipeline 'ingress': end
+[13:40:59.308] [bmv2] [D] [thread 47] [0.0] [cxt 0] Egress port is 3
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Pipeline 'egress': start
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(327) Condition "hdr.myTunnel.isValid() && !hdr.mri.isValid()" (node_8) is false
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(331) Condition "hdr.mri.isValid()" (node_11) is true
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] Applying table 'MyEgress.set_mri'
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Looking up key:
+
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Table 'MyEgress.set_mri': miss
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Action entry is MyEgress.add_mri - 3,
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] Action MyEgress.add_mri
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(251) Primitive hdr.mri.count = hdr.mri.count + swid
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(252) Primitive         log_msg(\"MRI count updated to: {}\", { hdr.mri.count });
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(252) Primitive         log_msg(\"MRI count updated to: {}\", { hdr.mri.count });
+[13:40:59.308] [bmv2] [I] [thread 51] MRI count updated to: 10
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(258) Primitive hdr.validation.push_front(1)
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(261) Primitive hdr.validation[0].setValid()
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(262) Primitive hdr.validation[0].swid = swid
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(263) Primitive hdr.validation[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(269) Primitive hdr.ipv4.ihl = hdr.ipv4.ihl + 2
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(270) Primitive hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 8
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(271) Primitive hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] Applying table 'tbl_main334'
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Looking up key:
+
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Table 'tbl_main334': miss
+[13:40:59.308] [bmv2] [D] [thread 51] [0.0] [cxt 0] Action entry is main334 - 
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] Action main334
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(334) Primitive         log_msg(\"swid: {}\", {hdr.validation[0].swid});
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(334) Primitive         log_msg(\"swid: {}\", {hdr.validation[0].swid});
+[13:40:59.308] [bmv2] [I] [thread 51] swid: 3
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(335) Primitive         log_msg(\"meta.decapsulate: {}\", {meta.decapsulate});
+[13:40:59.308] [bmv2] [T] [thread 51] [0.0] [cxt 0] /shared/main.p4(335) Primitive         log_msg(\"meta.decapsulate: {}\", {meta.decapsulate});
+[13:40:59.308] [bmv2] [I] [thread 51] meta.decapsulate: 0
+[13:40:59.308] [bmv2] [T]

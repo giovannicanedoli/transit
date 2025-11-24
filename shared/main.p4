@@ -8,9 +8,8 @@ const bit<8> PROTO_MYTUNNEL = 0x88;
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<5>  IPV4_OPTION_MRI = 31;
  
-const bit<5> VALIDATION_HEADER_VALID = 7;
-
-//HEADERS 
+ 
+//INIT HEADERS 
 
 typedef bit<9>  egressSpec_t;
 typedef bit<16> switchID_t;
@@ -26,7 +25,7 @@ header ethernet_t {
 header ipv4_t {
     bit<4> version;
     bit<4> ihl;
-    bit<8> diffserv;    // Differentiated Services Code Point (DSCP)
+    bit<8> diffserv;
     bit<16> totalLen;
     bit<16> identification;
     bit<3> flags;
@@ -45,7 +44,6 @@ header ipv4_option_t {
     bit<8> optionLength;
 }
 
-// tunnel header to handle tunneling
 header myTunnel_t {  
     bit<16> proto_id;
     bit<16> tunnel_id;
@@ -61,7 +59,6 @@ header validation_t {
     qdepth_t    qdepth;
 }
 
-// NOTE: Added new header type to headers struct
 struct headers {
     ethernet_t ethernet;
     ipv4_t ipv4;
@@ -71,12 +68,15 @@ struct headers {
     validation_t[MAX_HOPS] validation;
 }
 
+//END HEADERS
+
 
 //INIT METADATA
 
 struct metadata {
     bit<16> remaining;
     bit<16> threshold;
+    bit<1> decapsulate;
 }
 
 //END METADATA
@@ -104,19 +104,6 @@ parser MyParser(packet_in packet,
             default : accept;
         }
     }
-
-    // state parse_ipv4 {
-    //     packet.extract(hdr.ipv4);
-    //     transition select(hdr.ipv4.protocol) {
-    //         PROTO_MYTUNNEL: parse_myTunnel;
-    //         default: accept;
-    //     }
-    // }
-
-    // state parse_myTunnel {
-    //     packet.extract(hdr.myTunnel);
-    //     transition parse_ipv4_option;
-    // }
 
     state parse_ipv4{
         packet.extract(hdr.ipv4);
@@ -146,6 +133,7 @@ parser MyParser(packet_in packet,
     state parse_mri {
         packet.extract(hdr.mri);
         meta.remaining = hdr.mri.count;
+        meta.decapsulate = 0;
         transition select(meta.remaining) {
             0 : accept;
             default: parse_validation; 
@@ -187,11 +175,9 @@ control MyIngress(inout headers hdr,
         
         hdr.myTunnel.proto_id = (bit<16>)hdr.ipv4.protocol;
 
-        hdr.ipv4.protocol = PROTO_MYTUNNEL; // defined as 0x88 previously
-        hdr.ipv4.totalLen = hdr.ipv4.totalLen + 4; // 4 bytes is correct (2 for proto + 2 for id)
+        hdr.ipv4.protocol = PROTO_MYTUNNEL;
+        hdr.ipv4.totalLen = hdr.ipv4.totalLen + 4;
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
-
-        standard_metadata.egress_spec = port;
     }
     
     table ipv4_tunnel_forward {
@@ -214,15 +200,8 @@ control MyIngress(inout headers hdr,
     }
 
     action tunnel_decapsulate(bit<9> port){
-        // Restore Protocol
-        hdr.ipv4.protocol = (bit<8>)hdr.myTunnel.proto_id;
-        
-        // Fix Length
-        hdr.ipv4.totalLen = hdr.ipv4.totalLen - 4;
-        
-        // Remove Header
-        hdr.myTunnel.setInvalid();
-        
+        log_msg("tunnel decapsulate!");
+        meta.decapsulate = 1;
         standard_metadata.egress_spec = port;
     }
 
@@ -267,59 +246,22 @@ control MyEgress(inout headers hdr,
     }
 
     action add_mri(switchID_t swid) {
-        /* 1. UPDATE PATH SUM (Proof of Transit) */
+        // update path sum
         hdr.mri.count = hdr.mri.count + swid;
         log_msg("MRI count updated to: {}", { hdr.mri.count });
 
-        /* 2. PUSH FRONT (The Fix)
-        Shift existing headers down to make room at index 0.
-        e.g., validation[0] -> validation[1]
-        */
+        //push it on top of the validation stack
         hdr.validation.push_front(1);
 
-        /* 3. WRITE DATA TO NEW HEAD (Index 0) */
+        //write new data
         hdr.validation[0].setValid();
         hdr.validation[0].swid = swid;
         hdr.validation[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
 
-        /* 4. UPDATE IPV4 LENGTHS
-        We added 8 bytes of data (sizeof switchID_t + sizeof qdepth_t),
-        so we must update the IP header to reflect the larger packet size.
-        */
+        //update ipv4 lengths
         hdr.ipv4.ihl = hdr.ipv4.ihl + 2; // 2 words (8 bytes)
         hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 8;
         hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
-    }
-
-    action pop_validation_stack() {
-        /* STEP 1: CALCULATE SIZE TO REMOVE 
-           We need to know exactly how many bytes to strip.
-           - Each trace in the stack is 8 bytes.
-           - The mri header (count) is 2 bytes.
-           - The ipv4_option header is 2 bytes.
-           - Total static overhead = 4 bytes.
-        */
-        bit<16> stack_bytes = (bit<16>)hdr.mri.count * 8;
-        bit<16> total_removal_bytes = stack_bytes + 4;
-
-        /* STEP 2: RESTORE IPV4 LENGTHS */
-        hdr.ipv4.totalLen = hdr.ipv4.totalLen - total_removal_bytes;
-        
-        // IHL is measured in 32-bit (4-byte) words. 
-        // We divide by 4 (right shift 2) to subtract the correct amount from IHL.
-        hdr.ipv4.ihl = hdr.ipv4.ihl - (bit<4>)(total_removal_bytes >> 2);
-
-        /* STEP 3: INVALIDATE HEADERS */
-        hdr.mri.setInvalid();
-        hdr.ipv4_option.setInvalid();
-
-        /* STEP 4: CLEAR THE STACK 
-           pop_front(N) shifts the stack N times. 
-           Using MAX_HOPS ensures the entire stack is wiped clean.
-        */
-        hdr.validation.pop_front(MAX_HOPS);
-        
-        log_msg("Validation stack popped. IP restored.");
     }
 
     action set_threshold(bit<16> threshold){
@@ -339,7 +281,7 @@ control MyEgress(inout headers hdr,
             set_threshold;
             NoAction;
         }
-        default_action = NoAction(); // Or drop() if you want strict security
+        default_action = NoAction();
     }
     
     
@@ -351,12 +293,14 @@ control MyEgress(inout headers hdr,
         if(hdr.mri.isValid()){
             set_mri.apply();
         }
-        if(!hdr.myTunnel.isValid()){
+        log_msg("swid: {}", {hdr.validation[0].swid});
+        log_msg("meta.decapsulate: {}", {meta.decapsulate});
+        if(meta.decapsulate == 1){
             load_threshold.apply();
             log_msg("THRESHOLD VALUE SET SUCCESSFULLY!");
             if(hdr.mri.count <= meta.threshold){
                 log_msg("PROOF VALID. Expected <= {}, Got {}", {meta.threshold, hdr.mri.count});
-                pop_validation_stack();
+                // TODO: should I clean the header validation stack? If so the packets are not being received by the host :/ 
             }else{
                 log_msg("PROOF FAILED. Dropping.");
                 mark_to_drop(standard_metadata);
@@ -378,7 +322,7 @@ control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
               hdr.ipv4.flags,
               hdr.ipv4.fragOffset,
               hdr.ipv4.ttl,
-              hdr.ipv4.protocol, // This will now reflect PROTO_MYTUNNEL if tunneled
+              hdr.ipv4.protocol,
               hdr.ipv4.srcAddr,
               hdr.ipv4.dstAddr },
             hdr.ipv4.hdrChecksum,
