@@ -1,10 +1,8 @@
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.1 10.0.0.2 0x20 => 10
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.3 10.0.0.4 0x20 => 20
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.1 10.0.0.4 0x20 => 30
-table_add MyIngress.ipv4_tunnel_forward ipv4_tunnel_match 10.0.0.3 10.0.0.2 0x20 => 40
+table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.1 10.0.0.2 0x20 => 10 2 00:01:02:03:04:22
+table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.1 10.0.0.4 0x20 => 10 2 00:01:02:03:06:11
+table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.3 10.0.0.2 0x20 => 10 2 00:01:02:03:04:22
+table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.3 10.0.0.4 0x20 => 10 2 00:01:02:03:06:11
 
 
 table_add MyIngress.intermediate_tables tunnel_forward 10 => 2
-table_add MyIngress.intermediate_tables tunnel_forward 20 => 3
-table_add MyIngress.intermediate_tables tunnel_forward 30 => 2
-table_add MyIngress.intermediate_tables tunnel_forward 40 => 3
+table_set_default MyEgress.set_mri add_mri 1

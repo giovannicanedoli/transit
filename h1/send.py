@@ -1,63 +1,138 @@
+#!/usr/bin/env python
 from scapy.all import *
 import sys
+import argparse
 from time import sleep
 
+# --- SCAPY HEADER DEFINITIONS ---
+from scapy.layers.inet import _IPOption_HDR
+
+class SwitchTrace(Packet):
+    """
+    Represents the data added by each switch:
+    - 32-bit Switch ID
+    - 32-bit Queue Depth
+    Total: 8 bytes per hop.
+    """
+    fields_desc = [ IntField("swid", 0),
+                    IntField("qdepth", 0)]
+    
+    def extract_padding(self, p):
+        return "", p
+
+class IPOption_MRI(IPOption):
+    """
+    The Custom IP Option for MRI (Multi-Hop Route Inspection).
+    Option Number: 31
+    """
+    name = "MRI"
+    option = 31
+    fields_desc = [ 
+        _IPOption_HDR,
+        # Length Field: 
+        #   4 bytes of fixed header (Type + Len + Count) 
+        #   + (Number of Traces * 8 bytes per trace)
+        FieldLenField("length", None, fmt="B",
+                      length_of="swtraces",
+                      adjust=lambda pkt,l:l*8+4), 
+        ShortField("count", 0),
+        PacketListField("swtraces",
+                       [],
+                       SwitchTrace,
+                       count_from=lambda pkt:(pkt.count)) 
+    ]
+# -------------------------------
+
 def get_if():
-    ifs=get_if_list()
-    iface=None # "h1-eth0"
+    """
+    Helper function to find the first interface containing 'eth0'.
+    """
+    ifs = get_if_list()
+    iface = None 
     for i in get_if_list():
         if "eth0" in i:
-            iface=i
+            iface = i
             break
     if not iface:
         print("Cannot find eth0 interface")
-        exit(1)
+        sys.exit(1)
     return iface
 
-def build_normal_ipv4_packet(src, dst, dscp=0, payload="HELLO"):
-    
-
+def build_normal_ipv4_packet(iface, src, dst, dscp=0, payload="HELLO"):
     """
-    Build a plain Ethernet → IPv4 → payload packet.
-    The P4 program will add the tunnel header if the (src, dst, dscp) match.
-    
-    NOTE: DSCP in IPv4 = upper 6 bits of TOS → shift left by 2
+    Builds an Ethernet -> IP -> Payload packet.
+    INJECTS the MRI IP Option.
     """
     ip_tos = dscp << 2
-    iface = get_if()
+    
+    # We create the MRI Option initialized to empty
+    mri_option = IPOption_MRI(count=0, swtraces=[])
+
     pkt = (
         Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") /
-        IP(src=src, dst=dst, tos=ip_tos) /
+        IP(src=src, dst=dst, tos=ip_tos, options=mri_option) /
         Raw(load=payload)
     )
     return pkt
 
-
-if __name__ == "__main__":
-    # Example packet expected to be encapsulated by the P4 program
+def main():
+    # The description here appears at the top of the --help menu
+    parser = argparse.ArgumentParser(
+        description='Send customized IPv4 packets containing the MRI (Multi-Hop Route Inspection) Option.'
+    )
     
-    src_ip = "10.0.0.1"
-    dst_ip = "10.0.0.2"
-    #count = int(sys.argv[2]) if len(sys.argv) > 3 else 1
-    #payload = sys.argv[3] if len(sys.argv) > 2 else "TriggerTunnel"
-    count = 10
-    payload = "HELLO"
+    # Arguments
+    parser.add_argument('--src', type=str, default="10.0.0.1", 
+                        help='Source IP address (Default: 10.0.0.1)')
+    parser.add_argument('--dst', type=str, default="10.0.0.2", 
+                        help='Destination IP address (Default: 10.0.0.2)')
+    parser.add_argument('--count', type=int, default=1, 
+                        help='Number of packets to send (Default: 1)')
+    parser.add_argument('--dscp', type=int, default=8, 
+                        help='DSCP (TOS) value (Default: 8)')
+    parser.add_argument('--payload', type=str, default="HELLO", 
+                        help='String payload to send inside the packet (Default: "HELLO")')
+    parser.add_argument('--interval', type=float, default=1.0, 
+                        help='Time in seconds to wait between packets (Default: 1.0)')
 
+    args = parser.parse_args()
+
+    # Validation
+    if args.count < 1:
+        print("Error: Count must be at least 1.")
+        sys.exit(1)
+
+    # Get Interface
+    iface = get_if()
+
+    print(f"Sending {args.count} packet(s) from {args.src} to {args.dst} on {iface}")
+
+    # Build the packet with MRI
     pkt = build_normal_ipv4_packet(
-        src=src_ip,
-        dst=dst_ip,
-        dscp=8,
-        payload=payload
+        iface=iface,
+        src=args.src,
+        dst=args.dst,
+        dscp=args.dscp,
+        payload=args.payload
     )
 
-    print("\n=== Packet sent without tunnel ===")
+    print("\n=== Packet Template (with MRI Option) ===")
     pkt.show2()
         
     try:
-        for i in range(0, count):
-            print(f"\n=== Sending packet {i+1}/{count} ===")
-            sendp(pkt, iface="eth0")
-            sleep(1)
+        for i in range(0, args.count):
+            if args.count > 1:
+                print(f"Sending packet {i+1}/{args.count}...", end='\r')
+            
+            sendp(pkt, iface=iface, verbose=False)
+            
+            if args.count > 1:
+                sleep(args.interval)
+                
     except KeyboardInterrupt:
         print("\nUser interrupted execution.")
+    
     print("\nDone sending packets.")
+
+if __name__ == "__main__":
+    main()
