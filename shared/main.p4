@@ -166,7 +166,7 @@ control MyIngress(inout headers hdr,
         mark_to_drop(standard_metadata);
     }
 
-    action tunnel_ingress(bit<16> tunnel_id, bit<9> port, bit<48> dstAddr) {
+    action tunnel_ingress(bit<16> tunnel_id, bit<48> dstAddr) {
         hdr.myTunnel.setValid();
         hdr.myTunnel.tunnel_id = tunnel_id; 
 
@@ -277,10 +277,14 @@ control MyEgress(inout headers hdr,
     }
 
     table load_threshold{
+        key = {
+            hdr.myTunnel.tunnel_id: exact;
+        }
         actions = {
             set_threshold;
             NoAction;
         }
+        size = 1024;
         default_action = NoAction();
     }
     
@@ -300,7 +304,6 @@ control MyEgress(inout headers hdr,
             log_msg("THRESHOLD VALUE SET SUCCESSFULLY!");
             if(hdr.mri.count <= meta.threshold){
                 log_msg("PROOF VALID. Expected <= {}, Got {}", {meta.threshold, hdr.mri.count});
-                // TODO: should I clean the header validation stack? If so the packets are not being received by the host :/ 
             }else{
                 log_msg("PROOF FAILED. Dropping.");
                 mark_to_drop(standard_metadata);

@@ -58,6 +58,19 @@ def get_if():
         sys.exit(1)
     return iface
 
+def get_own_ip(iface):
+    """
+    Get the IP address assigned to the given interface.
+    """
+    try:
+        ip = get_if_addr(iface)
+        if ip and ip != "0.0.0.0":
+            return ip
+    except Exception:
+        pass
+    print(f"Error: Could not determine IP address for interface {iface}")
+    sys.exit(1)
+
 def build_normal_ipv4_packet(iface, src, dst, dscp=0, payload="HELLO"):
     """
     Builds an Ethernet -> IP -> Payload packet.
@@ -76,16 +89,23 @@ def build_normal_ipv4_packet(iface, src, dst, dscp=0, payload="HELLO"):
     return pkt
 
 def main():
+    # Get Interface first (needed for auto-detection)
+    iface = get_if()
+    
+    # Auto-detect source IP from interface
+    auto_src = get_own_ip(iface)
+
+    # Hardcoded destination: h3 -> h4
+    auto_dst = "10.0.0.4"
+
     # The description here appears at the top of the --help menu
     parser = argparse.ArgumentParser(
         description='Send customized IPv4 packets containing the MRI (Multi-Hop Route Inspection) Option.'
     )
     
     # Arguments
-    parser.add_argument('--src', type=str, default="10.0.0.3", 
-                        help='Source IP address (Default: 10.0.0.1)')
-    parser.add_argument('--dst', type=str, default="10.0.0.4", 
-                        help='Destination IP address (Default: 10.0.0.2)')
+    parser.add_argument('--dst', type=str, default=auto_dst, 
+                        help=f'Destination IP address (Default: {auto_dst})')
     parser.add_argument('--count', type=int, default=1, 
                         help='Number of packets to send (Default: 1)')
     parser.add_argument('--dscp', type=int, default=8, 
@@ -102,15 +122,12 @@ def main():
         print("Error: Count must be at least 1.")
         sys.exit(1)
 
-    # Get Interface
-    iface = get_if()
-
-    print(f"Sending {args.count} packet(s) from {args.src} to {args.dst} on {iface}")
+    print(f"Sending {args.count} packet(s) from {auto_src} to {args.dst} on {iface}")
 
     # Build the packet with MRI
     pkt = build_normal_ipv4_packet(
         iface=iface,
-        src=args.src,
+        src=auto_src,
         dst=args.dst,
         dscp=args.dscp,
         payload=args.payload

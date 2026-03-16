@@ -1,5 +1,13 @@
+# === s6: Egress switch (decapsulation + threshold check) ===
+# Tunnel 10 (h1->h2): decapsulate and forward to port 3 (eth2=L -> h2)
+table_add MyIngress.intermediate_tables tunnel_decapsulate 10 => 3
+# Tunnel 40 (h3->h4): decapsulate and forward to port 4 (eth3=N -> h4)
+table_add MyIngress.intermediate_tables tunnel_decapsulate 40 => 4
 
-table_add MyIngress.intermediate_tables tunnel_forward 10 => 3
-table_add MyIngress.intermediate_tables tunnel_forward 20 => 3
-table_add MyIngress.intermediate_tables tunnel_forward 30 => 4
-table_add MyIngress.intermediate_tables tunnel_forward 40 => 4
+table_set_default MyEgress.set_mri add_mri 6
+
+# Per-tunnel thresholds (exact swid sum for the valid path)
+# Tunnel 10 path: s1(1) + s2(2) + s4(4) + s6(6) = 13
+table_add MyEgress.load_threshold set_threshold 10 => 13
+# Tunnel 40 path: s1(1) + s3(3) + s5(5) + s6(6) = 15
+table_add MyEgress.load_threshold set_threshold 40 => 15

@@ -1,4 +1,5 @@
-
+# === s2: Transit switch (on h1->h2 path only) ===
+# Tunnel 10: forward to port 2 (eth1=D -> s4)
 table_add MyIngress.intermediate_tables tunnel_forward 10 => 2
-table_set_default MyEgress.set_mri add_mri 2
 
+table_set_default MyEgress.set_mri add_mri 2
