@@ -33,7 +33,7 @@ The goal of this project is to perform **tunnel based forwarding** in a Kathara 
 
 The lab consists of **4 hosts** and **6 P4 switches** interconnected via collision domains.
 
-![Network Topology](topology.png)
+![Network Topology](transit.pdf)
 
 ### Hosts
 
