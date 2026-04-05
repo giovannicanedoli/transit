@@ -1,13 +1,5 @@
-# === s1: Ingress switch ===
-# h1(10.0.0.1) -> h2(10.0.0.2): tunnel 10, forward to port 2 (eth1=B -> s2)
 table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.1 10.0.0.2 0x20 => 10 00:01:02:03:04:22
-
-# h3(10.0.0.3) -> h4(10.0.0.4): tunnel 40, forward to port 3 (eth2=C -> s3)
 table_add MyIngress.ipv4_tunnel_forward tunnel_ingress 10.0.0.3 10.0.0.4 0x20 => 40 00:01:02:03:06:11
-
-# Transit forwarding for tunnel 10: port 2 (-> s2)
 table_add MyIngress.intermediate_tables tunnel_forward 10 => 2
-# Transit forwarding for tunnel 40: port 3 (-> s3)
 table_add MyIngress.intermediate_tables tunnel_forward 40 => 3
-
 table_set_default MyEgress.set_mri add_mri 1

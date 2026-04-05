@@ -33,27 +33,7 @@ The goal of this project is to perform **tunnel based forwarding** in a Kathara 
 
 The lab consists of **4 hosts** and **6 P4 switches** interconnected via collision domains.
 
-```
-                        ┌──────┐
-                   ┌────┤  s2  ├────┐
-                   │B   │      │D   │
-                   │    └──┬┬──┘    │
-                   │     F ││ H     │
-        ┌──────┐   │    ┌──┘└──┐    │   ┌──────┐
-   h1 ──┤  s1  ├───┘    │      │    └───┤  s4  ├──┐
-   A    │      │C ──────┤  s3  │I ──────┤      │  │J
-   h3 ──┤      │        │      ├────────┤      │  │
-   M    └──────┘        └──┬───┘        └──────┘  │
-                         E │                       │
-                           │                       │
-                        ┌──┴───┐        ┌──────┐   │
-                        │  s5  ├────────┤  s6  ├───┘
-                        │      │K       │      │
-                        └──┬───┘        └─┬──┬─┘
-                         G │            L │  │ N
-                           │              │  │
-                         (s4)            h2  h4
-```
+![Network Topology](topology.png)
 
 ### Hosts
 
